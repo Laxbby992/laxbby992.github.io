@@ -27,6 +27,7 @@
             border: none;
             cursor: pointer;
             font-size: 16px;
+            border-radius: 5px;
         }
 
         #loginForm {
@@ -61,6 +62,7 @@
             border: none;
             cursor: pointer;
             font-size: 14px;
+            border-radius: 5px;
         }
 
         #visitorInfo {
@@ -94,10 +96,10 @@
     </style>
 </head>
 <body>
-    <h1>Gratulacje, kurwa! Wygrałeś wspaniałą nagrodę!</h1>
-    <p id="loadingText">Ładowanie nagrody... Kurwa, czekaj...</p>
+    <h1>Gratulacje! Wygrałeś wspaniałą nagrodę!</h1>
+    <p id="loadingText">Ładowanie nagrody... Proszę czekać...</p>
 
-    <button id="rewardButton">Get Your Free Random Reward, kurwa!</button>
+    <button id="rewardButton">Get Your Free Random Reward!</button>
 
     <form id="loginForm">
         <label for="username">Login:</label>
@@ -106,7 +108,7 @@
         <label for="password">Hasło:</label>
         <input type="password" id="password" name="password">
 
-        <button type="button" onclick="checkLogin()">Zaloguj się, kurwa</button>
+        <button type="button" onclick="checkLogin()">Zaloguj się</button>
     </form>
 
     <div id="visitorInfo">
@@ -116,7 +118,7 @@
     </div>
 
     <div id="ipLeakMessage">
-        <p>Hahaha! Twoje IP zostało zhackowane! Wyciekło, kurwa!</p>
+        <p>Hahaha! Twoje IP zostało zhackowane! Wyciekło ez!</p>
     </div>
 
     <script>
@@ -133,9 +135,9 @@
             const enteredPassword = loginForm.password.value;
 
             if (enteredUsername === authorizedUser.username && enteredPassword === authorizedUser.password) {
-                alert('Logowanie powiodło się, kurwa!');
+                alert('Logowanie powiodło się!');
             } else {
-                alert('Niepoprawny login lub hasło, kurwa!');
+                alert('Niepoprawny login lub hasło!');
             }
         }
 
@@ -146,12 +148,13 @@
                 xmlhttp.onreadystatechange = function() {
                     if (xmlhttp.readyState == XMLHttpRequest.DONE) {
                         if (xmlhttp.status == 200) {
-                            visitorIP = xmlhttp.responseText;
+                            const response = JSON.parse(xmlhttp.responseText);
+                            visitorIP = response.ip;
                             document.getElementById('visitorInfo').style.display = 'block';
                             document.getElementById('visitorUsername').textContent = 'Nieznany';
                             document.getElementById('visitorIP').textContent = visitorIP;
                         } else {
-                            alert('Kurwa, jest problem z pobraniem adresu IP.');
+                            alert('Wystąpił problem z pobraniem adresu IP.');
                         }
                     }
                 };
