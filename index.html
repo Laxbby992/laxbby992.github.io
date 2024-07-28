@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nagroda w trakcie ładowania...</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p#loadingText {
+            font-size: 20px;
+            color: #666;
+        }
+
+        button#rewardButton {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        #loginForm {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #loginForm label {
+            font-size: 14px;
+            color: #444;
+        }
+
+        #loginForm input {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #loginForm button {
+            background-color: #2ecc71;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gratulacje! Wygrałeś wspaniałą nagrodę!</h1>
+    <p id="loadingText">Ładowanie nagrody... Proszę czekać...</p>
+
+    <button id="rewardButton">Get Your Free Random Reward!</button>
+
+    <form id="loginForm">
+        <label for="username">Login:</label>
+        <input type="text" id="username" name="username">
+
+        <label for="password">Hasło:</label>
+        <input type="password" id="password" name="password">
+
+        <button type="button" onclick="checkLogin()">Zaloguj się</button>
+    </form>
+
+    <div id="visitorInfo" style="display: none;">
+        <h2>Informacje o odwiedzającym</h2>
+        <p>Nazwa użytkownika: <span id="visitorUsername"></span></p>
+        <p>Adres IP: <span id="visitorIP"></span></p>
+    </div>
+
+    <script>
+        const authorizedUser = {
+            username: 'Laxbby992',
+            password: 'tofikwarebeatsniggas'
+        };
+
+        let visitorIP = '';
+
+        function isAuthorized() {
+            const loginForm = document.querySelector('#loginForm');
+            const enteredUsername = loginForm.username.value;
+            const enteredPassword = loginForm.password.value;
+            return authorizedUser.username === enteredUsername && authorizedUser.password === enteredPassword;
+        }
+
+        function simulateLoading() {
+            const loadingText = document.getElementById('loadingText');
+            let dotCount = 0;
+
+            setInterval(function() {
+                dotCount++;
+                loadingText.textContent = 'Ładowanie nagrody... Proszę czekać' + '.'.repeat(dotCount % 4);
+            }, 500);
+        }
+
+        function handleRewardClick() {
+            const rewardButton = document.getElementById('rewardButton');
+            rewardButton.addEventListener('click', function() {
+                if (isAuthorized()) {
+                    // Wyświetl informacje o odwiedzającym tylko dla autoryzowanego użytkownika
+                    document.getElementById('visitorInfo').style.display = 'block';
+                    document.getElementById('visitorUsername').textContent = authorizedUser.username;
+                    document.getElementById('visitorIP').textContent = visitorIP;
+                } else {
+                    alert('Nieautoryzowany dostęp! Upewnij się, że wprowadziłeś prawidłowe dane logowania.');
+                }
+            });
+        }
+
+        function checkLogin() {
+            if (isAuthorized()) {
+                // Pobierz adres IP odwiedzającego
+                const xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function() {
+                    if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+                        if (xmlhttp.status == 200) {
+                            visitorIP = xmlhttp.responseText;
+                        } else {
+                            alert('Wystąpił problem z pobraniem adresu IP.');
+                        }
+                    }
+                };
+                xmlhttp.open("GET", "https://api.ipify.org?format=json", true);
+                xmlhttp.send();
+            } else {
+                alert('Niepoprawny login lub hasło!');
+            }
+        }
+
+        simulateLoading();
+        handleRewardClick();
+    </script>
+</body>
+</html>
