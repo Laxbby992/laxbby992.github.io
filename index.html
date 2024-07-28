@@ -1,174 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Laxbby99 Secure Login</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        
-        .container {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            width: 300px;
-            text-align: center;
-        }
-        
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        
-        button {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        
-        .login-status {
-            display: none;
-        }
-        
-        .logged-in {
-            color: green;
-            font-weight: bold;
-        }
-        
-        .logged-out {
-            color: red;
-            font-weight: bold;
-        }
-        
-        /* Beautiful GUI styles */
-        body {
-            background-image: linear-gradient(to right, #348ac7, #7474bf, #a55eea);
-        }
-        
-        .container {
-            background-color: rgba(255, 255, 255, 0.9);
-            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
-            padding: 30px;
-            width: 350px;
-        }
-        
-        h1 {
-            font-size: 28px;
-            color: #333;
-        }
-        
-        input[type="text"],
-        input[type="password"] {
-            border: 1px solid #bbb;
-            padding: 12px;
-            font-size: 16px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-        }
-        
-        button {
-            background-color: #4caf50;
-            color: #fff;
-            font-size: 18px;
-            padding: 12px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <title>Discord ID to IP</title>
 </head>
 <body>
-    <div class="container">
-        <h1>Laxbby99 Secure Login</h1>
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="login()">Login</button>
-        <div class="login-status">
-            <p class="logged-in" style="display: none;">Logged In as <span id="loggedInUser"></span></p>
-            <p class="logged-out">Not Logged In</p>
-        </div>
-        <p><a href="#" onclick="logout()">Logout</a></p>
-    </div>
+    <h1>Discord ID to IP</hizer>
+    <input type="text" id="discord_id" placeholder="Enter Discord User ID">
+    <button onclick="lookupIP()">Lookup IP</button>
+    <p id="ip_address"></p>
 
     <script>
-        const token = "MTIzMDIzMzM4ODY3NDQ1MzUwNQ.GHAcLZ.jJFB9H1aDmxZcgcBoCWMLlFzdoXTwq1QOSB410";
-        let loggedIn = false;
-        let username = "";
-        let userIP = "";
+        function lookupIP() {
+            var discordId = document.getElementById("discord_id").value;
+            if (discordId.length === 0) {
+                alert("Wprowadź identyfikator użytkownika Discord!");
+                return;
+            }
 
-        function login() {
-            const inputUsername = document.getElementById("username").value;
-            const inputPassword = document.getElementById("password").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "https://discordapp.com/api/users/" + discordId + "/connections", true);
+            xhr.setRequestHeader("Authorization", "Token your_bot_token_here");
 
-            // Simulate an asynchronous login process
-            setTimeout(function() {
-                if (inputUsername === "laxbby99" && inputPassword === "password123") {
-                    loggedIn = true;
-                    username = inputUsername;
-                    document.getElementById("loggedInUser").textContent = username;
-                    document.querySelector(".logged-in").style.display = "block";
-                    document.querySelector(".logged-out").style.display = "none";
-                    // Grab the user's IP address
-                    getUserIP();
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i].type === 1) {
+                            var ipAddress = data[i].friend_sync_id.split(":")[0];
+                            document.getElementById("ip_address").textContent = "Adres IP: " + ipAddress;
+                            return;
+                        }
+                    }
+                    document.getElementById("ip_address").textContent = "Adres IP nie znaleziony.";
                 } else {
-                    alert("Invalid credentials. Please try again.");
+                    document.getElementById("ip_address").textContent = "Błąd podczas pobierania danych.";
                 }
-            }, 1000);
-        }
+            };
 
-        function logout() {
-            loggedIn = false;
-            username = "";
-            userIP = "";
-            document.querySelector(".logged-in").style.display = "none";
-            document.querySelector(".logged-out").style.display = "block";
-        }
+            xhr.onerror = function () {
+                document.getElementById("ip_address").textContent = "Błąd połączenia.";
+            };
 
-        function getUserIP() {
-            fetch("https://api.ipify.org?format=json", {
-                headers: {
-                    "Authorization": token,
-                    "Content-Type": "application/json"
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                userIP = data.ip;
-                console.log("User IP:", userIP);
-                // Perform further actions or store the IP address
-            })
-            .catch(error => {
-                console.error("Error fetching IP address:", error);
-            });
-        }
-
-        // Example of storing the grabbed IP address in local storage
-        if (loggedIn) {
-            getUserIP();
+            xhr.send();
         }
     </script>
 </body>
