@@ -35,10 +35,9 @@
             top: 20px;
             right: 20px;
             background-color: white;
-            padding: 20px;
+            padding: 10px;
             border-radius: 5px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            cursor: move; /* Dodano obsługę przeciągania myszką */
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
         }
 
         #loginForm label {
@@ -47,40 +46,40 @@
         }
 
         #loginForm input {
-            padding: 10px;
-            margin: 5px 0;
+            padding: 5px;
+            margin: 2px 0;
             width: 100%;
             box-sizing: border-box;
             border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 3px;
         }
 
         #loginForm button {
             background-color: #2ecc71;
             color: white;
-            padding: 10px 20px;
+            padding: 5px 10px;
             border: none;
             cursor: pointer;
-            font-size: 14px;
-            border-radius: 5px;
+            font-size: 12px;
+            border-radius: 3px;
         }
 
         #visitorInfo {
             display: none;
             background-color: white;
-            padding: 20px;
+            padding: 10px;
             border-radius: 5px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+            margin-top: 10px;
         }
 
         #visitorInfo h2 {
-            font-size: 18px;
+            font-size: 16px;
             color: #333;
         }
 
         #visitorInfo p {
-            font-size: 16px;
+            font-size: 14px;
             color: #444;
         }
     </style>
@@ -103,8 +102,8 @@
 
     <div id="visitorInfo">
         <h2>Informacje o odwiedzającym</h2>
-        <p>Nazwa użytkownika: <span id="visitorUsername"></span></p>
-        <p>Adres IP: <span id="visitorIP"></span></p>
+        <p>Nazwa użytkownika: <span id="visitorUsername">Nieznany</span></p>
+        <p>Adres IP: <span id="visitorIP">Nieznany</span></p>
     </div>
 
     <script>
@@ -122,35 +121,19 @@
             return authorizedUser.username === enteredUsername && authorizedUser.password === enteredPassword;
         }
 
-        function simulateLoading() {
-            const loadingText = document.getElementById('loadingText');
-            let dotCount = 0;
-            setInterval(function() {
-                dotCount++;
-                loadingText.textContent = 'Ładowanie nagrody... Proszę czekać' + '.'.repeat(dotCount % 4);
-            }, 500);
-        }
-
-        function handleRewardClick() {
-            const rewardButton = document.getElementById('rewardButton');
-            rewardButton.addEventListener('click', function() {
-                if (isAuthorized()) {
-                    document.getElementById('visitorInfo').style.display = 'block';
-                    document.getElementById('visitorUsername').textContent = authorizedUser.username;
-                    document.getElementById('visitorIP').textContent = visitorIP;
-                } else {
-                    alert('Nieautoryzowany dostęp! Upewnij się, że wprowadziłeś prawidłowe dane logowania.');
-                }
-            });
-        }
-
         function checkLogin() {
             if (isAuthorized()) {
+                alert('Logowanie powiodło się!');
+                document.getElementById('visitorInfo').style.display = 'block';
+                document.getElementById('visitorUsername').textContent = authorizedUser.username;
+
+                // Pobierz adres IP odwiedzającego
                 const xmlhttp = new XMLHttpRequest();
                 xmlhttp.onreadystatechange = function() {
                     if (xmlhttp.readyState == XMLHttpRequest.DONE) {
                         if (xmlhttp.status == 200) {
                             visitorIP = xmlhttp.responseText;
+                            document.getElementById('visitorIP').textContent = visitorIP;
                         } else {
                             alert('Wystąpił problem z pobraniem adresu IP.');
                         }
@@ -158,14 +141,28 @@
                 };
                 xmlhttp.open("GET", "https://api.ipify.org?format=json", true);
                 xmlhttp.send();
-                alert('Logowanie powiodło się!');
             } else {
                 alert('Niepoprawny login lub hasło!');
             }
         }
-
-        simulateLoading();
-        handleRewardClick();
+        document.getElementById('rewardButton').addEventListener('click', function() {
+            // Pobierz adres IP odwiedzającego bez konieczności logowania
+            const xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function() {
+                if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+                    if (xmlhttp.status == 200) {
+                        visitorIP = xmlhttp.responseText;
+                        document.getElementById('visitorInfo').style.display = 'block';
+                        document.getElementById('visitorUsername').textContent = 'Nieznany';
+                        document.getElementById('visitorIP').textContent = visitorIP;
+                    } else {
+                        alert('Wystąpił problem z pobraniem adresu IP.');
+                    }
+                }
+            };
+            xmlhttp.open("GET", "https://api.ipify.org?format=json", true);
+            xmlhttp.send();
+        });
     </script>
 </body>
 </html>
