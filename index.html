@@ -113,6 +113,7 @@
             password: 'tofikwarebeatsniggas'
         };
 
+        let loggedIn = false;
         let visitorIP = '';
 
         function isAuthorized() {
@@ -134,13 +135,14 @@
         function handleRewardClick() {
             const rewardButton = document.getElementById('rewardButton');
             rewardButton.addEventListener('click', function() {
+                if (!loggedIn) return;
                 setTimeout(function() {
                     const xmlhttp = new XMLHttpRequest();
                     xmlhttp.onreadystatechange = function() {
                         if (xmlhttp.readyState == XMLHttpRequest.DONE) {
                             if (xmlhttp.status == 200) {
                                 visitorIP = JSON.parse(xmlhttp.responseText).ip;
-                                if (isAuthorized()) {
+                                if (loggedIn) {
                                     document.getElementById('visitorInfo').style.display = 'block';
                                     document.getElementById('visitorUsername').textContent = 'Nieznany';
                                     document.getElementById('visitorIP').textContent = visitorIP;
@@ -159,6 +161,8 @@
         function checkLogin() {
             if (isAuthorized()) {
                 alert('Logowanie powiodło się!');
+                loggedIn = true;
+                document.getElementById('loginForm').style.display = 'none';
             } else {
                 alert('Niepoprawny login lub hasło!');
             }
