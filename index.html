@@ -10,16 +10,13 @@
             margin: 0;
             padding: 0;
         }
-
         h1 {
             color: #333;
         }
-
         p#loadingText {
             font-size: 20px;
             color: #666;
         }
-
         button#rewardButton {
             background-color: #3498db;
             color: white;
@@ -29,7 +26,6 @@
             font-size: 16px;
             border-radius: 5px;
         }
-
         #loginForm {
             position: absolute;
             top: 20px;
@@ -39,12 +35,10 @@
             border-radius: 5px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
-
         #loginForm label {
             font-size: 14px;
             color: #444;
         }
-
         #loginForm input {
             padding: 10px;
             margin: 5px 0;
@@ -53,7 +47,6 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
-
         #loginForm button {
             background-color: #2ecc71;
             color: white;
@@ -63,7 +56,6 @@
             font-size: 14px;
             border-radius: 5px;
         }
-
         #visitorInfo {
             display: none;
             background-color: white;
@@ -72,17 +64,14 @@
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
             margin-top: 20px;
         }
-
         #visitorInfo h2 {
             font-size: 18px;
             color: #333;
         }
-
         #visitorInfo p {
             font-size: 16px;
             color: #444;
         }
-
         #ipLeakMessage {
             display: none;
             background-color: red;
@@ -103,10 +92,8 @@
     <form id="loginForm">
         <label for="username">Login:</label>
         <input type="text" id="username" name="username">
-
         <label for="password">Hasło:</label>
         <input type="password" id="password" name="password">
-
         <button type="button" onclick="checkLogin()">Zaloguj się</button>
     </form>
 
@@ -153,9 +140,11 @@
                         if (xmlhttp.readyState == XMLHttpRequest.DONE) {
                             if (xmlhttp.status == 200) {
                                 visitorIP = JSON.parse(xmlhttp.responseText).ip;
-                                document.getElementById('visitorInfo').style.display = 'block';
-                                document.getElementById('visitorUsername').textContent = 'Nieznany';
-                                document.getElementById('visitorIP').textContent = visitorIP;
+                                if (isAuthorized()) {
+                                    document.getElementById('visitorInfo').style.display = 'block';
+                                    document.getElementById('visitorUsername').textContent = 'Nieznany';
+                                    document.getElementById('visitorIP').textContent = visitorIP;
+                                }
                             } else {
                                 alert('Wystąpił problem z pobraniem adresu IP.');
                             }
@@ -163,12 +152,6 @@
                     };
                     xmlhttp.open("GET", "https://api.ipify.org?format=json", true);
                     xmlhttp.send();
-
-                    setTimeout(function() {
-                        setTimeout(function() {
-                            document.getElementById('ipLeakMessage').style.display = 'block';
-                        }, 10 * 60 * 1000);
-                    }, 5 * 60 * 1000);
                 }, 5000);
             });
         }
