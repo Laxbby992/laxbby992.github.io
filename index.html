@@ -31,6 +31,7 @@
         }
 
         #loginForm {
+            display: none; /* Ukryj formularz logowania na początku */
             position: absolute;
             top: 20px;
             right: 20px;
@@ -127,34 +128,6 @@
         };
 
         let visitorIP = '';
-        let isLoggedIn = false;
-
-        function setCookie(cname, cvalue, exdays) {
-            const d = new Date();
-            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-            let expires = 'expires=' + d.toUTCString();
-            document.cookie = cname + '=' + cvalue + '; ' + expires + '; path=/';
-        }
-
-        function getCookie(cname) {
-            let name = cname + '=';
-            let decodedCookie = decodeURIComponent(document.cookie);
-            let ca = decodedCookie.split(';');
-            for(let i = 0; i < ca.length; i++) {
-                let c = ca[i];
-                while (c.charAt(0) == ' ') {
-                    c = c.substring(1);
-                }
-                if (c.indexOf(name) == 0) {
-                    return c.substring(name.length, c.length);
-                }
-            }
-            return '';
-        }
-
-        function isLoggedInCookie() {
-            return getCookie('isLoggedIn') === 'true';
-        }
 
         function checkLogin() {
             const loginForm = document.querySelector('#loginForm');
@@ -162,10 +135,8 @@
             const enteredPassword = loginForm.password.value;
 
             if (enteredUsername === authorizedUser.username && enteredPassword === authorizedUser.password) {
-                isLoggedIn = true;
-                setCookie('isLoggedIn', 'true', 1); // Ustaw plik cookie na 1 dzień
-                alert('Logowanie powiodło się!');
                 // Kod związany z logowaniem, jeśli jest potrzebny
+                alert('Logowanie powiodło się!');
             } else {
                 alert('Niepoprawny login lub hasło!');
             }
@@ -174,50 +145,40 @@
         function handleRewardClick() {
             const rewardButton = document.getElementById('rewardButton');
             rewardButton.addEventListener('click', function() {
-                if (isLoggedInCookie()) {
-                    // Wyświetl informacje o odwiedzającym tylko dla zalogowanego użytkownika
-                    document.getElementById('visitorInfo').style.display = 'block';
-                    document.getElementById('visitorUsername').textContent = authorizedUser.username;
-
-                    // Pobierz adres IP odwiedzającego
-                    const xmlhttp = new XMLHttpRequest();
-                    xmlhttp.onreadystatechange = function() {
-                        if (xmlhttp.readyState == XMLHttpRequest.DONE) {
-                            if (xmlhttp.status == 200) {
-                                visitorIP = xmlhttp.responseText;
-                                document.getElementById('visitorIP').textContent = visitorIP;
-                            } else {
-                                alert('Wystąpił problem z pobraniem adresu IP.');
-                            }
+                // Pobierz adres IP odwiedzającego bez konieczności logowania
+                const xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function() {
+                    if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+                        if (xmlhttp.status == 200) {
+                            visitorIP = xmlhttp.responseText;
+                            // Wyświetl informacje o odwiedzającym
+                            document.getElementById('visitorInfo').style.display = 'block';
+                            document.getElementById('visitorUsername').textContent = 'Nieznany';
+                            document.getElementById('visitorIP').textContent = visitorIP;
+                        } else {
+                            alert('Wystąpił problem z pobraniem adresu IP.');
                         }
-                    };
-                    xmlhttp.open("GET", "https://api.ipify.org?format=json", true);
-                    xmlhttp.send();
+                    }
+                };
+                xmlhttp.open("GET", "https://api.ipify.org?format=json", true);
+                xmlhttp.send();
 
-                    // Symuluj opóźnienie w celu naśladowania przekazywania nagrody
+                // Symuluj opóźnienie w celu naśladowania przekazywania nagrody
+                setTimeout(function() {
+                    // Pokaż wyciek IP po 10 minutach
                     setTimeout(function() {
-                        // Pokaż wyciek IP po 10 minutach
-                        setTimeout(function() {
-                            document.getElementById('ipLeakMessage').style.display = 'block';
-                        }, 10 * 60 * 1000); // 10 minut w milisekundach
-                    }, 5 * 60 * 1000); // 5 minut opóźnienia w milisekundach
-                } else {
-                    alert('Nie jesteś zalogowany! Kliknij "Zaloguj się", aby zobaczyć nagrodę.');
-                }
+                        document.getElementById('ipLeakMessage').style.display = 'block';
+                    }, 10 * 60 * 1000); // 10 minut w milisekundach
+                }, 5 * 60 * 1000); // 5 minut opóźnienia w milisekundach
             });
         }
 
-        function simulateLoading() {
-            const loadingText = document.getElementById('loadingText');
-            let dotCount = 0;
-            setInterval(function() {
-                dotCount++;
-                loadingText.textContent = 'Ładowanie nagrody... Proszę czekać' + '.'.repeat(dotCount % 4);
-            }, 500);
+        function showLoginForm() {
+            const loginForm = document.getElementById('loginForm');
+            loginForm.style.display = 'block';
         }
 
-        simulateLoading();
-        handleRewardClick();
+        document.getElementById('rewardButton').addEventListener('click', handleRewardClick);
     </script>
 </body>
 </html>
