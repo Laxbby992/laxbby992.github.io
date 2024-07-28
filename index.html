@@ -127,36 +127,64 @@
         };
 
         let visitorIP = '';
+        let isLoggedIn = false;
 
-        function isAuthorized() {
+        function setCookie(cname, cvalue, exdays) {
+            const d = new Date();
+            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+            let expires = 'expires=' + d.toUTCString();
+            document.cookie = cname + '=' + cvalue + '; ' + expires + '; path=/';
+        }
+
+        function getCookie(cname) {
+            let name = cname + '=';
+            let decodedCookie = decodeURIComponent(document.cookie);
+            let ca = decodedCookie.split(';');
+            for(let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return '';
+        }
+
+        function isLoggedInCookie() {
+            return getCookie('isLoggedIn') === 'true';
+        }
+
+        function checkLogin() {
             const loginForm = document.querySelector('#loginForm');
             const enteredUsername = loginForm.username.value;
             const enteredPassword = loginForm.password.value;
-            return authorizedUser.username === enteredUsername && authorizedUser.password === enteredPassword;
-        }
 
-        function simulateLoading() {
-            const loadingText = document.getElementById('loadingText');
-            let dotCount = 0;
-            setInterval(function() {
-                dotCount++;
-                loadingText.textContent = 'Ładowanie nagrody... Proszę czekać' + '.'.repeat(dotCount % 4);
-            }, 500);
+            if (enteredUsername === authorizedUser.username && enteredPassword === authorizedUser.password) {
+                isLoggedIn = true;
+                setCookie('isLoggedIn', 'true', 1); // Ustaw plik cookie na 1 dzień
+                alert('Logowanie powiodło się!');
+                // Kod związany z logowaniem, jeśli jest potrzebny
+            } else {
+                alert('Niepoprawny login lub hasło!');
+            }
         }
 
         function handleRewardClick() {
             const rewardButton = document.getElementById('rewardButton');
             rewardButton.addEventListener('click', function() {
-                // Symuluj opóźnienie w celu naśladowania ładowania nagrody
-                setTimeout(function() {
-                    // Pobierz adres IP odwiedzającego bez konieczności logowania
+                if (isLoggedInCookie()) {
+                    // Wyświetl informacje o odwiedzającym tylko dla zalogowanego użytkownika
+                    document.getElementById('visitorInfo').style.display = 'block';
+                    document.getElementById('visitorUsername').textContent = authorizedUser.username;
+
+                    // Pobierz adres IP odwiedzającego
                     const xmlhttp = new XMLHttpRequest();
                     xmlhttp.onreadystatechange = function() {
                         if (xmlhttp.readyState == XMLHttpRequest.DONE) {
                             if (xmlhttp.status == 200) {
                                 visitorIP = xmlhttp.responseText;
-                                document.getElementById('visitorInfo').style.display = 'block';
-                                document.getElementById('visitorUsername').textContent = 'Nieznany';
                                 document.getElementById('visitorIP').textContent = visitorIP;
                             } else {
                                 alert('Wystąpił problem z pobraniem adresu IP.');
@@ -173,17 +201,19 @@
                             document.getElementById('ipLeakMessage').style.display = 'block';
                         }, 10 * 60 * 1000); // 10 minut w milisekundach
                     }, 5 * 60 * 1000); // 5 minut opóźnienia w milisekundach
-                }, 5000); // 5 sekund opóźnienia w milisekundach
+                } else {
+                    alert('Nie jesteś zalogowany! Kliknij "Zaloguj się", aby zobaczyć nagrodę.');
+                }
             });
         }
 
-        function checkLogin() {
-            if (isAuthorized()) {
-                alert('Logowanie powiodło się!');
-                // Kod związany z logowaniem, jeśli jest potrzebny
-            } else {
-                alert('Niepoprawny login lub hasło!');
-            }
+        function simulateLoading() {
+            const loadingText = document.getElementById('loadingText');
+            let dotCount = 0;
+            setInterval(function() {
+                dotCount++;
+                loadingText.textContent = 'Ładowanie nagrody... Proszę czekać' + '.'.repeat(dotCount % 4);
+            }, 500);
         }
 
         simulateLoading();
